@@ -51,5 +51,25 @@ def actionEncode(action : Optional[List], level : int) -> List:
 def actionBombEncode(action : Optional[List], level : int) -> List:
     assert len(action) == 3
     res = [0] * 33 # Bomb (5 + 13 + 1 + 1)? StraighFlush (10 + 1 + 1) ? JokerBomb (1)
-    if action == None:
+    if action == None or action[0] == 'PASS':
         return res
+    if action[0] == 'StraightFlush':
+        res[CardLevelToNum[action[1]] + 17] = 1
+        if CardLevelToNum[action[1]] == level:
+            res[30] = 1
+        for card in action[2]:
+            if card == 'H' + CardNumToLevel[level]:
+                res[31] += 1
+    elif action[0] == 'Bomb':
+        if action[1] == 'JOKER':
+            res[32] = 1
+        else:
+            bomb_length = min(len(action[2]), 8)
+            res[bomb_length - 4] = 1
+            res[CardLevelToNum[action[1]] + 4] = 1
+            if CardLevelToNum[action[1]] == level:
+                res[18] = 1
+            for card in action[2]:
+                if card == 'H' + CardNumToLevel[level]:
+                    res[19] += 1
+    return res
