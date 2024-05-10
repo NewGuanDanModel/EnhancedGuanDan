@@ -21,6 +21,17 @@ CardNumToLevel = {
     12 : 'K', 13 : 'A', 14 : 'B', 15 : 'R'
 }
 
+def heartLevelCardNum(cardList : List, level : int) -> int:
+    assert len(cardList) == 54
+    return cardList[level - 1]
+
+def removeLevelHeartList(cardList : List, level : int, num_remove : int) -> List:
+    assert len(cardList) == 54
+    res = cardList.copy()
+    res[level - 1] -= num_remove
+    res[level - 1] = max(0, res[level - 1])
+    return res
+
 def actionEncode(action : Optional[List], level : int) -> List:
     assert len(action) == 3
     res = [0] * 24 # 7 + 15 + 1 + 1
@@ -50,26 +61,94 @@ def actionEncode(action : Optional[List], level : int) -> List:
 
 def actionBombEncode(action : Optional[List], level : int) -> List:
     assert len(action) == 3
-    res = [0] * 33 # Bomb (5 + 13 + 1 + 1)? StraighFlush (10 + 1 + 1) ? JokerBomb (1)
+    res = [0] * 35 # Bomb (7 + 13 + 1 + 1)? StraighFlush (10 + 1 + 1) ? JokerBomb (1)
     if action == None or action[0] == 'PASS':
         return res
     if action[0] == 'StraightFlush':
         res[CardLevelToNum[action[1]] + 17] = 1
         if CardLevelToNum[action[1]] == level:
-            res[30] = 1
+            res[32] = 1
         for card in action[2]:
             if card == 'H' + CardNumToLevel[level]:
-                res[31] += 1
+                res[33] += 1
     elif action[0] == 'Bomb':
         if action[1] == 'JOKER':
-            res[32] = 1
+            res[34] = 1
         else:
-            bomb_length = min(len(action[2]), 8)
+            bomb_length = len(action[2])
             res[bomb_length - 4] = 1
-            res[CardLevelToNum[action[1]] + 4] = 1
+            res[CardLevelToNum[action[1]] + 6] = 1
             if CardLevelToNum[action[1]] == level:
-                res[18] = 1
+                res[20] = 1
             for card in action[2]:
                 if card == 'H' + CardNumToLevel[level]:
-                    res[19] += 1
+                    res[21] += 1
+    return res
+
+def cardNumSum(hiddenCards : List) -> List:
+    res = [0] * 15 # 2 ... K - A - SB - HR
+    for i in range(13):
+        for j in range(4):
+            res[i] += hiddenCards[i + j * 13]
+    res[13] += hiddenCards[52]
+    res[14] += hiddenCards[53]
+    return res
+
+def possibleCombination(hiddenCards : List, cardNum : int, level : int) -> List:
+    res = [] # Pair(15) + Trip(13) + ThreePair(12) + ThreeWithTwo(13) + TwoTrips(13) + Straight(10) 
+    # + Bomb(7 * 13) + StraightFlush(10) + JokerBomb(1)
+    if cardNum == 1:
+        return res
+    cNS = cardNumSum(hiddenCards)
+    pairList = findAllPair(hiddenCards, cNS, level)
+    res.extend(pairList)
+    return res
+
+def findAllPair(hiddenCards : List, cNS : List, level : int) -> List:
+    res = [0] * 15 # 2 ... K - A - SB - HR
+    # No heart level card
+    for i in range(15):
+        if cNS[i] >= 2:
+            res[i] = 1
+    # Have 1 heart level card
+    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    if heart_level_num >= 1:
+        cNS2 = cNS.copy()
+        cNS2[level - 1] -= 1
+        for i in range(13):
+            if cNS2[i] >= 1:
+                res[i] = 1
+    return res
+
+def findAllTrip(hiddenCards : List, cNS : List, level : int) -> List:
+    res = [0] * 13
+    return res
+
+def findAllThreePair(hiddenCards : List, cNS : List, level : int) -> List:
+    res = [0] * 12
+    return res
+
+def findAllThreeWithTwo(hiddenCards : List, cNS : List, level : int) -> List:
+    res = [0] * 13
+    return res
+
+def findAllTwoTrips(hiddenCards : List, cNS : List, level : int) -> List:
+    res = [0] * 13
+    return res
+
+#Do not include StraightFlush
+def findAllStraight(hiddenCards : List, cNS : List, level : int) -> List:
+    res = [0] * 10
+    return res
+
+def findAllBomb(hiddenCards : List, cNS : List, level : int) -> List:
+    res = [0] * 91
+    return res
+
+def findAllStraightFlush(hiddenCards : List, cNS : List, level : int) -> List:
+    res = [0] * 10
+    return res
+
+def findJokerBomb(cardNumSum : List) -> List:
+    res = [0] * 1
     return res
