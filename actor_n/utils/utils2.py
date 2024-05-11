@@ -174,6 +174,28 @@ def findAllThreeWithTwo(hiddenCards : List, cNS : List, level : int) -> List:
 
 def findAllTwoTrips(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 13
+    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    for i in range(13):
+        if cNS[i] >= 3 and cNS[(i+2) % 13] >= 3:
+            res[i] = 1
+    if heart_level_num == 2:
+        cNS2 = cNS.copy()
+        cNS2[level - 1] -= 2
+        for i in range(13):
+            if cNS[i] >= 3 and cNS[(i+2) % 13] >= 1:
+                res[i] = 1
+            elif cNS[i] >= 1 and cNS[(i+2) % 13] >= 3:
+                res[i] = 1
+            elif cNS[i] >= 2 and cNS[(i+2) % 13] >= 2:
+                res[i] = 1
+    if heart_level_num == 1:
+        cNS2 = cNS.copy()
+        cNS2[level - 1] -= 1
+        for i in range(13):
+            if cNS[i] >= 3 and cNS[(i+2) % 13] >= 2:
+                res[i] = 1
+            elif cNS[i] >= 2 and cNS[(i+2) % 13] >= 3:
+                res[i] = 1
     return res
 
 #Do not include StraightFlush
