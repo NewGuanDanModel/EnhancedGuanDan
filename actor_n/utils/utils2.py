@@ -142,6 +142,30 @@ def findAllTrip(hiddenCards : List, cNS : List, level : int) -> List:
 
 def findAllThreePair(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 12
+    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    for i in range(12):
+        if cNS[i] >= 2 and cNS[i+1] >= 2 and cNS[(i+2) % 13] >= 2:
+            res[i] = 1
+    if heart_level_num == 2:
+        cNS2 = cNS.copy()
+        cNS2[level - 1] -= 2
+        for i in range(12):
+            if cNS[i] >= 2 and cNS[i+1] >= 1 and cNS[(i+2) % 13] >= 1:
+                res[i] = 1
+            elif cNS[i] >= 1 and cNS[i+1] >= 2 and cNS[(i+2) % 13] >= 1:
+                res[i] = 1
+            elif cNS[i] >= 1 and cNS[i+1] >= 1 and cNS[(i+2) % 13] >= 2:
+                res[i] = 1
+    elif heart_level_num == 1:
+        cNS2 = cNS.copy()
+        cNS2[level - 1] -= 1
+        for i in range(12):
+            if cNS[i] >= 2 and cNS[i+1] >= 2 and cNS[(i+2) % 13] >= 1:
+                res[i] = 1
+            elif cNS[i] >= 1 and cNS[i+1] >= 2 and cNS[(i+2) % 13] >= 2:
+                res[i] = 1
+            elif cNS[i] >= 2 and cNS[i+1] >= 1 and cNS[(i+2) % 13] >= 2:
+                res[i] = 1
     return res
 
 def findAllThreeWithTwo(hiddenCards : List, cNS : List, level : int) -> List:
