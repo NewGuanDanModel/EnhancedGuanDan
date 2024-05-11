@@ -242,6 +242,27 @@ def findAllStraight(hiddenCards : List, cNS : List, level : int) -> List:
 
 def findAllBomb(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 91
+    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    if heart_level_num == 1:
+        cNS1 = cNS.copy()
+        cNS1[level - 1] -= 1
+    if heart_level_num == 2:
+        cNS2 = cNS.copy()
+        cNS2[level - 1] -= 2
+    for size in range(4, 9):
+        for i in range(13):
+            if heart_level_num == 0:
+                res[i + (size - 4) * 13] = 1 if cNS[i] >= size else 0
+            elif heart_level_num == 1:
+                res[i + (size - 4) * 13] = 1 if cNS1[i] >= size - 1 else 0
+            elif heart_level_num == 2:
+                res[i + (size - 4) * 13] = 1 if cNS2[i] >= size - 2 else 0
+    if heart_level_num == 1:
+        for i in range(13):
+            res[i + 65] = 1 if cNS1[i] == 8 else 0
+    if heart_level_num == 2:
+        for i in range(13):
+            res[i + 78] = 1 if cNS2[i] == 8 else 0
     return res
 
 def findAllStraightFlush(hiddenCards : List, cNS : List, level : int) -> List:
@@ -250,4 +271,5 @@ def findAllStraightFlush(hiddenCards : List, cNS : List, level : int) -> List:
 
 def findJokerBomb(cardNumSum : List) -> List:
     res = [0] * 1
+    res[0] = 1 if cardNumSum[13] + cardNumSum[14] == 4 else 0
     return res
