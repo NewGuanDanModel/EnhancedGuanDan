@@ -238,6 +238,25 @@ def findAllTwoTrips(hiddenCards : List, cNS : List, level : int) -> List:
 #Do not include StraightFlush
 def findAllStraight(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 10
+    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    for i in range(10):
+        num = checkoutStraight(cNS, i)
+        if num == 5:
+            res[i] = 1
+    if heart_level_num == 2:
+        cNS2 = cNS.copy()
+        cNS2[level - 1] -= 2
+        for i in range(10):
+            num = checkoutStraight(cNS, i)
+            if num >= 3:
+                res[i] = 1
+    if heart_level_num == 2:
+        cNS2 = cNS.copy()
+        cNS2[level - 1] -= 1
+        for i in range(10):
+            num = checkoutStraight(cNS, i)
+            if num >= 4:
+                res[i] = 1
     return res
 
 def findAllBomb(hiddenCards : List, cNS : List, level : int) -> List:
