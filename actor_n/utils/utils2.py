@@ -122,8 +122,10 @@ def possibleCombination(hiddenCards : List, cardNum : int, level : int) -> List:
     res.extend(pairList)
     return res
 
-def findAllPair(hiddenCards : List, cNS : List, level : int) -> List:
+def findAllPair(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 15 # 2 ... K - A - SB - HR
+    if hiddenCards == None:
+        return res
     # No heart level card
     for i in range(15):
         if cNS[i] >= 2:
@@ -138,8 +140,10 @@ def findAllPair(hiddenCards : List, cNS : List, level : int) -> List:
                 res[i] = 1
     return res
 
-def findAllTrip(hiddenCards : List, cNS : List, level : int) -> List:
+def findAllTrip(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 13
+    if hiddenCards == None:
+        return res
     heart_level_num = heartLevelCardNum(hiddenCards, level)
     for i in range(13):
         if cNS[i] >= 3:
@@ -158,8 +162,10 @@ def findAllTrip(hiddenCards : List, cNS : List, level : int) -> List:
                 res[i] = 1    
     return res
 
-def findAllThreePair(hiddenCards : List, cNS : List, level : int) -> List:
+def findAllThreePair(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 12
+    if hiddenCards == None:
+        return res
     heart_level_num = heartLevelCardNum(hiddenCards, level)
     for i in range(12):
         if cNS[i] >= 2 and cNS[i+1] >= 2 and cNS[(i+2) % 13] >= 2:
@@ -186,8 +192,10 @@ def findAllThreePair(hiddenCards : List, cNS : List, level : int) -> List:
                 res[i] = 1
     return res
 
-def findAllThreeWithTwo(hiddenCards : List, cNS : List, level : int) -> List:
+def findAllThreeWithTwo(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 13
+    if hiddenCards == None:
+        return res
     heart_level_num = heartLevelCardNum(hiddenCards, level)
     for i in range(13):
         if cNS[i] >= 3:
@@ -227,8 +235,10 @@ def findAllThreeWithTwo(hiddenCards : List, cNS : List, level : int) -> List:
                         break
     return res
 
-def findAllTwoTrips(hiddenCards : List, cNS : List, level : int) -> List:
+def findAllTwoTrips(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 13
+    if hiddenCards == None:
+        return res
     heart_level_num = heartLevelCardNum(hiddenCards, level)
     for i in range(13):
         if cNS[i] >= 3 and cNS[(i+2) % 13] >= 3:
@@ -254,8 +264,10 @@ def findAllTwoTrips(hiddenCards : List, cNS : List, level : int) -> List:
     return res
 
 #Include StraightFlush
-def findAllStraight(hiddenCards : List, cNS : List, level : int) -> List:
+def findAllStraight(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 10
+    if hiddenCards == None:
+        return res
     heart_level_num = heartLevelCardNum(hiddenCards, level)
     if heart_level_num == 0:
         convertCNS = convertCNS(cNS)
@@ -275,8 +287,10 @@ def findAllStraight(hiddenCards : List, cNS : List, level : int) -> List:
             res[i] = 1 if hasStraightFrom(convertCNS1, i, 5, 1) else 0
     return res
 
-def findAllBomb(hiddenCards : List, cNS : List, level : int) -> List:
+def findAllBomb(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 91
+    if hiddenCards == None:
+        return res
     heart_level_num = heartLevelCardNum(hiddenCards, level)
     if heart_level_num == 1:
         cNS1 = cNS.copy()
@@ -300,8 +314,10 @@ def findAllBomb(hiddenCards : List, cNS : List, level : int) -> List:
             res[i + 78] = 1 if cNS2[i] == 8 else 0
     return res
 
-def findAllStraightFlush(hiddenCards : List, cNS : List, level : int) -> List:
+def findAllStraightFlush(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 10
+    if hiddenCards == None:
+        return res
     return res
 
 def findJokerBomb(cardNumSum : List) -> List:
