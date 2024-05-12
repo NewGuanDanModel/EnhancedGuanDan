@@ -147,6 +147,13 @@ def possibleCombination(hiddenCards : List, cardNum : int, level : int) -> List:
     res.extend(pairList)
     return res
 
+def findAllSingle(cNS : List) -> List:
+    res = [0] * 15
+    for i in range(15):
+        if cNS[i] > 0:
+            res[i] = 1
+    return res
+
 def findAllPair(hiddenCards : Optional[List], cNS : List, level : int) -> List:
     res = [0] * 15 # 2 ... K - A - SB - HR
     if hiddenCards == None:
