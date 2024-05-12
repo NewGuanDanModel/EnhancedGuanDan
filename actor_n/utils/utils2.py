@@ -32,6 +32,35 @@ def removeLevelHeartList(cardList : List, level : int, num_remove : int) -> List
     res[level - 1] = max(0, res[level - 1])
     return res
 
+def cardNumSum(hiddenCards : List) -> List:
+    res = [0] * 15 # 2 ... K - A - SB - HR
+    for i in range(13):
+        for j in range(4):
+            res[i] += hiddenCards[i + j * 13]
+    res[13] += hiddenCards[52]
+    res[14] += hiddenCards[53]
+    return res
+
+def extractCardWithDecor(hiddenCards : List, decor : str) -> List:
+    temp = [0] * 13 # A ... Q, K
+    for i in range(13):
+        if decor == 'H':
+            temp[i] = hiddenCards[i]
+        elif decor == 'S':
+            temp[i] = hiddenCards[i + 13]
+        elif decor == 'C':
+            temp[i] = hiddenCards[i + 26]
+        elif decor == 'D':
+            temp[i] = hiddenCards[i + 39]
+    res = [temp[-1]] + temp.copy()[0:12]
+    return res
+
+def convertCNS(cNS : List) -> List:
+    assert len(cNS) == 15
+    numA = cNS[12]
+    res = [numA] + cNS.copy()[0:12]
+    return res
+
 def hasStraightFrom(cNS : List, index : int, remain : int, heart_level_num : int) -> bool:
     if remain == 0:
         return True
@@ -42,6 +71,17 @@ def hasStraightFrom(cNS : List, index : int, remain : int, heart_level_num : int
             return hasStraightFrom(cNS, index + 1, remain - 1, heart_level_num - 1)
     else:
         return hasStraightFrom(cNS, index + 1, remain - 1, heart_level_num)
+    
+def hasStraightFlushFrom(cNS : List, index : int, remain : int, heart_level_num : int) -> bool:
+    if remain == 0:
+        return True
+    if cNS[index] == 0:
+        if heart_level_num == 0:
+            return False
+        else:
+            return hasStraightFlushFrom(cNS, index + 1, remain - 1, heart_level_num - 1)
+    else:
+        return hasStraightFlushFrom(cNS, index + 1, remain - 1, heart_level_num)
     
 
 def actionEncode(action : Optional[List], level : int) -> List:
@@ -95,21 +135,6 @@ def actionBombEncode(action : Optional[List], level : int) -> List:
             for card in action[2]:
                 if card == 'H' + CardNumToLevel[level]:
                     res[21] += 1
-    return res
-
-def cardNumSum(hiddenCards : List) -> List:
-    res = [0] * 15 # 2 ... K - A - SB - HR
-    for i in range(13):
-        for j in range(4):
-            res[i] += hiddenCards[i + j * 13]
-    res[13] += hiddenCards[52]
-    res[14] += hiddenCards[53]
-    return res
-
-def convertCNS(cNS : List) -> List:
-    assert len(cNS) == 15
-    numA = cNS[12]
-    res = [numA] + cNS.copy()[0:12]
     return res
 
 def possibleCombination(hiddenCards : List, cardNum : int, level : int) -> List:
@@ -314,10 +339,31 @@ def findAllBomb(hiddenCards : Optional[List], cNS : List, level : int) -> List:
             res[i + 78] = 1 if cNS2[i] == 8 else 0
     return res
 
-def findAllStraightFlush(hiddenCards : Optional[List], cNS : List, level : int) -> List:
+def findAllStraightFlush(hiddenCards : Optional[List], level : int) -> List:
     res = [0] * 10
     if hiddenCards == None:
         return res
+    heart_level_num = heartLevelCardNum(hiddenCards, level)
+    if heart_level_num == 0:
+        for i in range(10):
+            res[i] = 1 if hasStraightFlushFrom(extractCardWithDecor(hiddenCards, 'H'), i, 5, 0) \
+                or hasStraightFlushFrom(extractCardWithDecor(hiddenCards, 'S'), i, 5, 0) \
+                    or hasStraightFlushFrom(extractCardWithDecor(hiddenCards, 'C'), i, 5, 0) \
+                        or hasStraightFlushFrom(extractCardWithDecor(hiddenCards, 'D'), i, 5, 0) else 0
+    elif heart_level_num == 1:
+        cardList1 = removeLevelHeartList(hiddenCards, level, 1)
+        for i in range(10):
+            res[i] = 1 if hasStraightFlushFrom(extractCardWithDecor(cardList1, 'H'), i, 5, 1) \
+                or hasStraightFlushFrom(extractCardWithDecor(cardList1, 'S'), i, 5, 1) \
+                    or hasStraightFlushFrom(extractCardWithDecor(cardList1, 'C'), i, 5, 1) \
+                        or hasStraightFlushFrom(extractCardWithDecor(cardList1, 'D'), i, 5, 1) else 0
+    elif heart_level_num == 2:
+        cardList2 = removeLevelHeartList(hiddenCards, level, 2)
+        for i in range(10):
+            res[i] = 1 if hasStraightFlushFrom(extractCardWithDecor(cardList2, 'H'), i, 5, 2) \
+                or hasStraightFlushFrom(extractCardWithDecor(cardList2, 'S'), i, 5, 2) \
+                    or hasStraightFlushFrom(extractCardWithDecor(cardList2, 'C'), i, 5, 2) \
+                        or hasStraightFlushFrom(extractCardWithDecor(cardList2, 'D'), i, 5, 2) else 0
     return res
 
 def findJokerBomb(cardNumSum : List) -> List:
