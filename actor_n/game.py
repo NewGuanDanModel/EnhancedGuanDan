@@ -595,6 +595,17 @@ class MyClient(WebSocketClient):
           }
         return obs
 
+    def prepare2(self, message):
+        num_legal_actions = message['indexRange'] + 1
+        legal_actions = [card2num(i[2]) for i in message['actionList']]
+        my_handcards = card2array(card2num(message['handCards']))   # 自己的手牌,54维
+        my_handcards_batch = np.repeat(my_handcards[np.newaxis, :],
+                                   num_legal_actions, axis=0)
+
+        universal_card_flag = self.proc_universal(my_handcards, RANK[message['curRank']])     # 万能牌的标志位, 12维
+        universal_card_flag_batch = np.repeat(universal_card_flag[np.newaxis, :],
+                                   num_legal_actions, axis=0)
+
     # 还贡
     def back_action(self, msg, mypos, tribute_result):
         rank = msg["curRank"]
