@@ -32,6 +32,18 @@ def removeLevelHeartList(cardList : List, level : int, num_remove : int) -> List
     res[level - 1] = max(0, res[level - 1])
     return res
 
+def hasStraightFrom(cNS : List, index : int, remain : int, heart_level_num : int) -> bool:
+    if remain == 0:
+        return True
+    if cNS[index] == 0:
+        if heart_level_num == 0:
+            return False
+        else:
+            return hasStraightFrom(cNS, index + 1, remain - 1, heart_level_num - 1)
+    else:
+        return hasStraightFrom(cNS, index + 1, remain - 1, heart_level_num)
+    
+
 def actionEncode(action : Optional[List], level : int) -> List:
     assert len(action) == 3
     res = [0] * 24 # 7 + 15 + 1 + 1
@@ -94,6 +106,12 @@ def cardNumSum(hiddenCards : List) -> List:
     res[14] += hiddenCards[53]
     return res
 
+def convertCNS(cNS : List) -> List:
+    assert len(cNS) == 15
+    numA = cNS[12]
+    res = [numA] + cNS.copy()[0:12]
+    return res
+
 def possibleCombination(hiddenCards : List, cardNum : int, level : int) -> List:
     res = [] # Pair(15) + Trip(13) + ThreePair(12) + ThreeWithTwo(13) + TwoTrips(13) + Straight(10) 
     # + Bomb(7 * 13) + StraightFlush(10) + JokerBomb(1)
@@ -111,7 +129,7 @@ def findAllPair(hiddenCards : List, cNS : List, level : int) -> List:
         if cNS[i] >= 2:
             res[i] = 1
     # Have 1 heart level card
-    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    heart_level_num = heartLevelCardNum(hiddenCards, level)
     if heart_level_num >= 1:
         cNS2 = cNS.copy()
         cNS2[level - 1] -= 1
@@ -122,7 +140,7 @@ def findAllPair(hiddenCards : List, cNS : List, level : int) -> List:
 
 def findAllTrip(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 13
-    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    heart_level_num = heartLevelCardNum(hiddenCards, level)
     for i in range(13):
         if cNS[i] >= 3:
             res[i] = 1
@@ -142,7 +160,7 @@ def findAllTrip(hiddenCards : List, cNS : List, level : int) -> List:
 
 def findAllThreePair(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 12
-    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    heart_level_num = heartLevelCardNum(hiddenCards, level)
     for i in range(12):
         if cNS[i] >= 2 and cNS[i+1] >= 2 and cNS[(i+2) % 13] >= 2:
             res[i] = 1
@@ -211,7 +229,7 @@ def findAllThreeWithTwo(hiddenCards : List, cNS : List, level : int) -> List:
 
 def findAllTwoTrips(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 13
-    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    heart_level_num = heartLevelCardNum(hiddenCards, level)
     for i in range(13):
         if cNS[i] >= 3 and cNS[(i+2) % 13] >= 3:
             res[i] = 1
@@ -235,33 +253,31 @@ def findAllTwoTrips(hiddenCards : List, cNS : List, level : int) -> List:
                 res[i] = 1
     return res
 
-#Do not include StraightFlush
+#Include StraightFlush
 def findAllStraight(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 10
-    heart_level_num = heartLevelCardNum(hiddenCards, int)
-    for i in range(10):
-        num = checkoutStraight(cNS, i)
-        if num == 5:
-            res[i] = 1
-    if heart_level_num == 2:
+    heart_level_num = heartLevelCardNum(hiddenCards, level)
+    if heart_level_num == 0:
+        convertCNS = convertCNS(cNS)
+        for i in range(10):
+            res[i] = 1 if hasStraightFrom(convertCNS, i, 5, 0) else 0
+    elif heart_level_num == 2:
         cNS2 = cNS.copy()
         cNS2[level - 1] -= 2
+        convertCNS2 = convertCNS(cNS2)
         for i in range(10):
-            num = checkoutStraight(cNS, i)
-            if num >= 3:
-                res[i] = 1
-    if heart_level_num == 2:
-        cNS2 = cNS.copy()
-        cNS2[level - 1] -= 1
+            res[i] = 1 if hasStraightFrom(convertCNS2, i, 5, 2) else 0
+    elif heart_level_num == 1:
+        cNS1 = cNS.copy()
+        cNS1[level - 1] -= 1
+        convertCNS1 = convertCNS(cNS1)
         for i in range(10):
-            num = checkoutStraight(cNS, i)
-            if num >= 4:
-                res[i] = 1
+            res[i] = 1 if hasStraightFrom(convertCNS1, i, 5, 1) else 0
     return res
 
 def findAllBomb(hiddenCards : List, cNS : List, level : int) -> List:
     res = [0] * 91
-    heart_level_num = heartLevelCardNum(hiddenCards, int)
+    heart_level_num = heartLevelCardNum(hiddenCards, level)
     if heart_level_num == 1:
         cNS1 = cNS.copy()
         cNS1[level - 1] -= 1
